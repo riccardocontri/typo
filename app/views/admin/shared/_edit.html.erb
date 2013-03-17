@@ -7,7 +7,6 @@
 
 <% if (@current_user.profile_id == 1) %>
   <%= form_tag(:action => 'merge') do %>
-
     <div class=''>
       <h4><%= _("Merge Articles") %></h4>
         <%= label_tag 'merge_with', 'Article ID' %>

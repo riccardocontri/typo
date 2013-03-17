@@ -607,6 +607,34 @@ describe Admin::ContentController do
       end
     end
 
+    describe 'merge action' do
+      before do
+        @merged_article = Factory(:article)
+      end
+      
+      it 'should call the model method that merges the articles' do
+        other_article = Factory(:article)
+        Article.should_receive(:find).with(@article.id).and_return(@article)
+        @article.should_receive(:merge_with).with(other_article.id).
+          and_return(@merged_article)
+        post :merge, 'id' => @article.id, 'merge_with' => other_article.id
+      end
+
+      it 'should select the "edit" view for rendering' do
+        Article.stub(:find).and_return(@article)
+        @article.stub(:merge_with).and_return(@merged_article)
+        post :merge
+        response.should redirect_to(:action => 'edit', :id => @merged_article.id)
+      end
+
+      it 'should expose the merged article to view' do
+        Article.stub(:find).and_return(@article)
+        @article.stub(:merge_with).and_return(@merged_article)
+        post :merge
+        assigns(:article).should == @merged_article
+      end
+    end
+
   end
 
   describe 'with publisher connection' do
@@ -669,6 +697,15 @@ describe Admin::ContentController do
         end.should_not change(Article, :count)
       end
 
+    end
+
+    describe 'cannot merge articles' do
+      it 'should be redirected to the index' do
+        #Article.stub(:find).and_return(@article)
+        #@article.stub(:merge_with).and_return(@merged_article)
+        post :merge
+        response.should redirect_to(:action => 'index')
+      end
     end
   end
 end
